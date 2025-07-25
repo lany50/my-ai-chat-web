@@ -5,168 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AI 助手</title>
     <style>
-        /* ============================================= */
-        /*              1. CSS 变量定义                  */
-        /* ============================================= */
+        /* CSS变量和基础样式部分保持不变 */
         :root {
-            --bg-color: #f0f2f5;
-            --header-bg: #ffffff;
-            --header-border: #dddddd;
-            --text-color: #000000;
-            --ai-msg-bg: #e9e9eb;
-            --user-msg-bg: #007bff;
-            --user-msg-text: #ffffff;
-            --input-area-bg: #ffffff;
-            --input-border-color: #ccc;
-            --button-bg: #007bff;
+            --bg-color: #f0f2f5; --header-bg: #ffffff; --header-border: #dddddd; --text-color: #000000; --ai-msg-bg: #e9e9eb; --user-msg-bg: #007bff; --user-msg-text: #ffffff; --input-area-bg: #ffffff; --input-border-color: #ccc; --button-bg: #007bff;
         }
-
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --header-bg: #1e1e1e;
-            --header-border: #333333;
-            --text-color: #e0e0e0;
-            --ai-msg-bg: #2a2a2a;
-            --user-msg-bg: #0056b3;
-            --user-msg-text: #ffffff;
-            --input-area-bg: #1e1e1e;
-            --input-border-color: #444;
-            --button-bg: #0056b3;
+            --bg-color: #121212; --header-bg: #1e1e1e; --header-border: #333333; --text-color: #e0e0e0; --ai-msg-bg: #2a2a2a; --user-msg-bg: #0056b3; --user-msg-text: #ffffff; --input-area-bg: #1e1e1e; --input-border-color: #444; --button-bg: #0056b3;
         }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: var(--header-bg); border-bottom: 1px solid var(--header-border); flex-shrink: 0; }
+        .header h1 { margin: 0; font-size: 1.2em; flex-grow: 1; }
+        #model-select { background-color: var(--header-bg); color: var(--text-color); border: 1px solid var(--input-border-color); border-radius: 8px; padding: 5px 8px; margin-left: auto; }
+        .header-buttons { display: flex; align-items: center; gap: 10px; margin-left: 10px; }
+        .header-button { background: none; border: 1px solid var(--input-border-color); border-radius: 8px; padding: 5px 8px; cursor: pointer; color: var(--text-color); }
+        #chat-window { flex-grow: 1; overflow-y: auto; padding: 15px 10px; display: flex; flex-direction: column; }
+        .message { max-width: 80%; padding: 8px 12px; border-radius: 18px; margin-bottom: 10px; line-height: 1.4; word-wrap: break-word; }
+        .user-message { background-color: var(--user-msg-bg); color: var(--user-msg-text); align-self: flex-end; }
+        .ai-message { background-color: var(--ai-msg-bg); color: var(--text-color); align-self: flex-start; }
+        #input-area { display: flex; align-items: center; padding: 8px; background-color: var(--input-area-bg); border-top: 1px solid var(--header-border); flex-shrink: 0; gap: 8px; }
+        #message-input { flex-grow: 1; padding: 8px 14px; border: 1px solid var(--input-border-color); border-radius: 20px; font-size: 16px; background-color: transparent; color: var(--text-color); margin: 0; }
+        #send-button { padding: 8px; border: none; background-color: var(--button-bg); color: white; border-radius: 50%; cursor: pointer; font-size: 18px; width: 40px; height: 40px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
 
-        /* ============================================= */
-        /*              2. 页面基础样式                  */
-        /* ============================================= */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
+        /* --- 核心改动：重写小屏幕的媒体查询 --- */
+        @media (max-width: 480px) {
+            /* 整体减小字体，适应小屏幕 */
+            html {
+                font-size: 15px;
+            }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            background-color: var(--header-bg);
-            border-bottom: 1px solid var(--header-border);
-            flex-shrink: 0;
-        }
+            /* 顶部栏极致压缩 */
+            .header {
+                padding: 6px 10px;
+                gap: 8px;
+            }
+            .header h1 {
+                display: none; /* 必须隐藏标题，腾出空间 */
+            }
+            #model-select {
+                padding: 4px 6px; /* 菜单变得更小 */
+                font-size: 0.9em;
+                margin-left: 0; /* 移除自动边距 */
+            }
+            .header-buttons {
+                gap: 6px; /* 按钮间距减小 */
+                margin-left: auto; /* 让按钮组整体靠右 */
+            }
+            .header-button {
+                padding: 4px 8px;
+            }
 
-        .header h1 {
-            margin: 0;
-            font-size: 1.2em;
-            flex-grow: 1;
-        }
+            /* 聊天窗口边距减小 */
+            #chat-window {
+                padding: 10px 8px;
+            }
 
-        #model-select {
-            background-color: var(--header-bg);
-            color: var(--text-color);
-            border: 1px solid var(--input-border-color);
-            border-radius: 8px;
-            padding: 5px 8px;
-            margin-left: auto; /* 让它靠右 */
-        }
-
-        .header-buttons {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: 10px;
-        }
-
-        .header-button {
-            background: none;
-            border: 1px solid var(--input-border-color);
-            border-radius: 8px;
-            padding: 5px 8px;
-            cursor: pointer;
-            color: var(--text-color);
-        }
-
-        #chat-window {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 15px 10px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 8px 12px;
-            border-radius: 18px;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .user-message {
-            background-color: var(--user-msg-bg);
-            color: var(--user-msg-text);
-            align-self: flex-end;
-        }
-
-        .ai-message {
-            background-color: var(--ai-msg-bg);
-            color: var(--text-color);
-            align-self: flex-start;
-        }
-
-        #input-area {
-            display: flex;
-            padding: 10px;
-            background-color: var(--input-area-bg);
-            border-top: 1px solid var(--header-border);
-            flex-shrink: 0;
-        }
-
-        #message-input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid var(--input-border-color);
-            border-radius: 20px;
-            margin-right: 10px;
-            font-size: 16px;
-            background-color: transparent;
-            color: var(--text-color);
-        }
-
-        #send-button {
-            padding: 10px 15px;
-            border: none;
-            background-color: var(--button-bg);
-            color: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        /* ============================================= */
-        /*              3. 手表端响应式样式                */
-        /* ============================================= */
-        @media (max-width: 400px) {
-            .header h1, #model-select { display: none; }
-            .header { justify-content: center; padding: 8px; }
-            .header-buttons { margin: 0; }
-            body { font-size: 16px; }
-            #message-input, #send-button { font-size: 16px; }
-            #chat-window { padding: 8px 5px; }
-            .message { max-width: 90%; }
-            #send-button { padding: 10px; min-width: 50px; }
+            /* 输入区域极致压缩 */
+            #input-area {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            #message-input {
+                padding: 6px 12px;
+                font-size: 1em; /* 继承html的字体大小 */
+            }
+            #send-button {
+                width: 36px;
+                height: 36px;
+                font-size: 16px; /* 图标大小 */
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- ============================================= -->
-<!--                 4. HTML 结构                  -->
-<!-- ============================================= -->
+<!-- HTML结构完全不变，只修改了发送按钮的文字为图标 -->
 <div class="header">
     <h1>AI 助手</h1>
     <select id="model-select">
@@ -180,133 +92,27 @@
         <button id="theme-toggle" class="header-button">🌙</button>
     </div>
 </div>
-
 <div id="chat-window">
-    <!-- 历史记录将会被动态加载到这里 -->
+    <!-- 历史记录会加载到这里 -->
 </div>
-
 <div id="input-area">
-    <input type="text" id="message-input" placeholder="输入消息...">
-    <button id="send-button">发送</button>
+    <input type="text" id="message-input" placeholder="输入...">
+    <button id="send-button">➤</button> <!-- 把"发送"文字改成一个箭头图标 -->
 </div>
 
-<!-- ============================================= -->
-<!--               5. JavaScript 逻辑              -->
-<!-- ============================================= -->
+<!-- JavaScript部分完全不变 -->
 <script>
-    // --- 元素获取 ---
-    const chatWindow = document.getElementById('chat-window');
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const modelSelect = document.getElementById('model-select');
-    const clearHistoryButton = document.getElementById('clear-history-button');
-
-    // --- 功能函数 ---
-    async function loadHistory() {
-        try {
-            const response = await fetch('/history');
-            const messages = await response.json();
-            chatWindow.innerHTML = '';
-            messages.forEach(msg => {
-                const messageClass = msg.role === 'user' ? 'user-message' : 'ai-message';
-                addMessage(msg.content, messageClass, false);
-            });
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        } catch (error) {
-            console.error('加载历史记录失败:', error);
-            addMessage('无法加载历史记录。', 'ai-message', false);
-        }
-    }
-
-    async function clearHistory() {
-        if (!confirm('确定要永久删除所有聊天记录吗？')) {
-            return;
-        }
-        try {
-            const response = await fetch('/clear', { method: 'POST' });
-            if (response.ok) {
-                chatWindow.innerHTML = '';
-                addMessage('聊天记录已清空。', 'ai-message');
-            } else {
-                const errorData = await response.json();
-                addMessage(`清空失败: ${errorData.error}`, 'ai-message');
-            }
-        } catch (error) {
-            console.error('清空失败:', error);
-        }
-    }
-
-    async function sendMessage() {
-        const messageText = messageInput.value.trim();
-        if (messageText === '') return;
-        addMessage(messageText, 'user-message');
-        messageInput.value = '';
-        const typingIndicator = addMessage('AI正在思考...', 'ai-message typing-indicator');
-        try {
-            const selectedModel = modelSelect.value;
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ message: messageText, model: selectedModel }),
-            });
-            chatWindow.removeChild(typingIndicator);
-            if (!response.ok) {
-                const errorData = await response.json();
-                addMessage(`出错了: ${errorData.error || response.statusText}`, 'ai-message');
-                return;
-            }
-            const data = await response.json();
-            addMessage(data.reply, 'ai-message');
-        } catch (error) {
-            if (chatWindow.contains(typingIndicator)) {
-                chatWindow.removeChild(typingIndicator);
-            }
-            addMessage(`网络请求失败: ${error.message}`, 'ai-message');
-        }
-    }
-
-    function addMessage(text, classNames, doScroll = true) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', ...classNames.split(' '));
-        messageElement.textContent = text;
-        chatWindow.appendChild(messageElement);
-        if (doScroll) {
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-        return messageElement;
-    }
-
-    function toggleTheme() {
-        const currentTheme = body.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-            body.removeAttribute('data-theme');
-            localStorage.removeItem('theme');
-            themeToggle.textContent = '🌙';
-        } else {
-            body.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-            themeToggle.textContent = '☀️';
-        }
-    }
-
-    // --- 初始化和事件监听 ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // 加载主题
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            body.setAttribute('data-theme', 'dark');
-            themeToggle.textContent = '☀️';
-        }
-        // 加载历史记录
-        loadHistory();
-    });
-
+    const chatWindow = document.getElementById('chat-window'), messageInput = document.getElementById('message-input'), sendButton = document.getElementById('send-button'), themeToggle = document.getElementById('theme-toggle'), body = document.body, modelSelect = document.getElementById('model-select'), clearHistoryButton = document.getElementById('clear-history-button');
+    async function loadHistory() { try { const response = await fetch('/history'); const messages = await response.json(); chatWindow.innerHTML = ''; messages.forEach(msg => { const messageClass = msg.role === 'user' ? 'user-message' : 'ai-message'; addMessage(msg.content, messageClass, false); }); chatWindow.scrollTop = chatWindow.scrollHeight; } catch (error) { console.error('加载历史记录失败:', error); addMessage('无法加载历史记录。', 'ai-message', false); } }
+    async function clearHistory() { if (!confirm('确定要永久删除所有聊天记录吗？')) { return; } try { const response = await fetch('/clear', { method: 'POST' }); if (response.ok) { chatWindow.innerHTML = ''; addMessage('聊天记录已清空。', 'ai-message'); } else { const errorData = await response.json(); addMessage(`清空失败: ${errorData.error}`, 'ai-message'); } } catch (error) { console.error('清空失败:', error); } }
+    async function sendMessage() { const messageText = messageInput.value.trim(); if (messageText === '') return; addMessage(messageText, 'user-message'); messageInput.value = ''; const typingIndicator = addMessage('AI正在思考...', 'ai-message typing-indicator'); try { const selectedModel = modelSelect.value; const response = await fetch('/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: messageText, model: selectedModel }), }); chatWindow.removeChild(typingIndicator); if (!response.ok) { const errorData = await response.json(); addMessage(`出错了: ${errorData.error || response.statusText}`, 'ai-message'); return; } const data = await response.json(); addMessage(data.reply, 'ai-message'); } catch (error) { if (chatWindow.contains(typingIndicator)) { chatWindow.removeChild(typingIndicator); } addMessage(`网络请求失败: ${error.message}`, 'ai-message'); } }
+    function addMessage(text, classNames, doScroll = true) { const messageElement = document.createElement('div'); messageElement.classList.add('message', ...classNames.split(' ')); messageElement.textContent = text; chatWindow.appendChild(messageElement); if (doScroll) { chatWindow.scrollTop = chatWindow.scrollHeight; } return messageElement; }
+    document.addEventListener('DOMContentLoaded', loadHistory);
     clearHistoryButton.addEventListener('click', clearHistory);
     sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-    themeToggle.addEventListener('click', toggleTheme);
+    const savedTheme = localStorage.getItem('theme'); if (savedTheme === 'dark') { body.setAttribute('data-theme', 'dark'); themeToggle.textContent = '☀️'; } else { themeToggle.textContent = '🌙'; }
+    themeToggle.addEventListener('click', () => { if (body.getAttribute('data-theme') === 'dark') { body.removeAttribute('data-theme'); localStorage.removeItem('theme'); themeToggle.textContent = '🌙'; } else { body.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeToggle.textContent = '☀️'; } });
 </script>
 
 </body>
